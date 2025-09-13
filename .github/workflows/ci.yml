@@ -10,7 +10,6 @@ env:
   DB_USER: postgres
   DB_PASS: 123456
   DB_NAME: paymate
-  DB_HOST: localhost
   DB_PORT: 5432
 
 jobs:
@@ -41,16 +40,23 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 123456
           POSTGRES_DB: paymate
-        ports:
-          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U postgres"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+    env:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: 123456
+      DB_NAME: paymate
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm install
 
       - name: Run migrations
         run: npx typeorm migration:run -d dist/data-source.js
@@ -65,13 +71,17 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 123456
           POSTGRES_DB: paymate
-        ports:
-          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U postgres"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+    env:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: 123456
+      DB_NAME: paymate
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
