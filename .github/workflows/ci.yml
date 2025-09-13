@@ -19,15 +19,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.18.3
-
       - name: Install dependencies
         run: npm install
-
       - name: Build project
         run: npm run build
 
@@ -57,18 +54,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.18.3
-
       - name: Install dependencies
         run: npm install
-
       - name: Build project
         run: npm run build
-
+      - name: Wait for Postgres to be ready
+        run: |
+          for i in $(seq 1 10); do
+            nc -z -w 1 postgres 5432 && break
+            echo "Waiting for Postgres..."
+            sleep 5
+          done
       - name: Run migrations
         run: npx typeorm migration:run -d dist/data-source.js
 
@@ -98,14 +98,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.18.3
-
       - name: Install dependencies
         run: npm install
-
       - name: Run tests
         run: npm run test
