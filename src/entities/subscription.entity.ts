@@ -1,6 +1,7 @@
 import { BillingCycleEnum } from 'src/enums/billing-cycle.enum';
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
+import { BaseEntity } from './base-entity.entity';
 
 @Entity()
 export class Subscription extends BaseEntity {

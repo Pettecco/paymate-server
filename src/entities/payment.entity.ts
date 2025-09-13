@@ -1,7 +1,8 @@
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Subscription } from './subscription.entity';
 import { User } from './user.entity';
 import { PaymentStatusEnum } from 'src/enums/payment-status.enum';
+import { BaseEntity } from './base-entity.entity';
 
 @Entity()
 export class Payment extends BaseEntity {
