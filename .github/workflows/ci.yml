@@ -6,30 +6,9 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  DB_USER: postgres
-  DB_PASS: 123456
-  DB_NAME: paymate
-  DB_HOST: postgres
-  DB_PORT: 5432
-
 jobs:
-  build-and-migrate:
+  setup:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 123456
-          POSTGRES_DB: paymate
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -45,12 +24,9 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Run migrations
-        run: npx typeorm migration:run -d dist/data-source.js
-
-  test:
+  migrations:
     runs-on: ubuntu-latest
-    needs: build-and-migrate
+    needs: setup
     services:
       postgres:
         image: postgres:15
@@ -64,15 +40,52 @@ jobs:
           --health-cmd="pg_isready -U postgres"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=10
+    env:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: 123456
+      DB_NAME: paymate
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20.18.3
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run migrations
+        run: npx typeorm migration:run -d dist/data-source.js
+
+  test:
+    runs-on: ubuntu-latest
+    needs: migrations
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 123456
+          POSTGRES_DB: paymate
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: 123456
+      DB_NAME: paymate
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Install dependencies
         run: npm install
