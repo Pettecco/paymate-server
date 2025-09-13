@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  DB_USER: postgres
+  DB_PASS: 123456
+  DB_NAME: paymate
+  DB_HOST: postgres
+  DB_PORT: 5432
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -42,14 +49,19 @@ jobs:
           --health-timeout=5s
           --health-retries=10
     env:
-      DB_HOST: postgres
-      DB_PORT: 5432
       DB_USER: postgres
       DB_PASS: 123456
       DB_NAME: paymate
+      DB_HOST: postgres
+      DB_PORT: 5432
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.18.3
 
       - name: Install dependencies
         run: npm install
@@ -78,14 +90,19 @@ jobs:
           --health-timeout=5s
           --health-retries=10
     env:
-      DB_HOST: postgres
-      DB_PORT: 5432
       DB_USER: postgres
       DB_PASS: 123456
       DB_NAME: paymate
+      DB_HOST: postgres
+      DB_PORT: 5432
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.18.3
 
       - name: Install dependencies
         run: npm install
