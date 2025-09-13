@@ -12,6 +12,6 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   entities: [User, Subscription, Payment],
-  migrations: ['dist/migrations/*.js'],
+  migrations: [__dirname + '/migrations/*.js'],
   synchronize: false,
 });
