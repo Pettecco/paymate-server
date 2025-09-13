@@ -10,7 +10,7 @@ env:
   DB_USER: postgres
   DB_PASS: 123456
   DB_NAME: paymate
-  DB_HOST: postgres
+  DB_HOST: db
   DB_PORT: 5432
 
 jobs:
@@ -19,89 +19,90 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.18.3
+
       - name: Install dependencies
         run: npm install
+
       - name: Build project
         run: npm run build
 
   migrations:
     runs-on: ubuntu-latest
     needs: setup
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 123456
-          POSTGRES_DB: paymate
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
     env:
       DB_USER: postgres
       DB_PASS: 123456
       DB_NAME: paymate
-      DB_HOST: postgres
+      DB_HOST: db
       DB_PORT: 5432
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.18.3
+
       - name: Install dependencies
         run: npm install
+
       - name: Build project
         run: npm run build
-      - name: Wait for Postgres to be ready
+
+      - name: Start Docker Compose services
+        run: docker-compose up -d
+
+      - name: Wait for database to be ready
         run: |
-          until pg_isready -h postgres -p 5432 -U postgres; do
-            echo "Waiting for Postgres..."
-            sleep 5
+          for i in $(seq 1 30); do
+            docker-compose exec -T db pg_isready -U postgres && break
+            echo "Waiting for database..."
+            sleep 1
           done
+
       - name: Run migrations
         run: npx typeorm migration:run -d dist/data-source.js
 
   test:
     runs-on: ubuntu-latest
     needs: migrations
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 123456
-          POSTGRES_DB: paymate
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
     env:
       DB_USER: postgres
       DB_PASS: 123456
       DB_NAME: paymate
-      DB_HOST: postgres
+      DB_HOST: db
       DB_PORT: 5432
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.18.3
+
       - name: Install dependencies
         run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Start Docker Compose services
+        run: docker-compose up -d
+
+      - name: Wait for database to be ready
+        run: |
+          for i in $(seq 1 30); do
+            docker-compose exec -T db pg_isready -U postgres && break
+            echo "Waiting for database..."
+            sleep 1
+          done
+
       - name: Run tests
         run: npm run test
