@@ -8,7 +8,7 @@ export default registerAs('globalConfig', () => ({
     username: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
-    autoLoadEntities: false,
+    autoLoadEntities: Boolean(process.env.DB_AUTOLOAD_ENTITIES),
     synchronize: false,
   },
   environment: process.env.NODE_ENV || 'development',
