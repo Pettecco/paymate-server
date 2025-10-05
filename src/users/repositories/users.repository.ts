@@ -21,7 +21,9 @@ export class UsersRepository implements IUsersRepository {
     });
 
     try {
-      return await this.userRepository.save(newUser);
+      const savedUser = await this.userRepository.save(newUser);
+
+      return await this.userRepository.findOneBy({ id: savedUser.id });
     } catch (error) {
       if (error.code === '23505') {
         throw new Error('EMAIL_ALREADY_EXISTS');
