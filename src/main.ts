@@ -17,7 +17,7 @@ async function bootstrap() {
     .setTitle('Paymate API')
     .setDescription('API for Paymate application')
     .setVersion('1.0')
-    .addTag('users', 'User management endpoints')
+    .addTag('Users', 'User management endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
